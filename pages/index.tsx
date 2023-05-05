@@ -1,7 +1,6 @@
 import Image from "next/image";
 import React from "react";
 import { Inter } from "next/font/google";
-import { User, Radio, Input } from "@nextui-org/react";
 import One from "./components/One";
 import Chart from "./components/Chart";
 import Order from "./components/Order";
@@ -13,7 +12,7 @@ const inter = Inter({ subsets: ["latin"] });
 export default function Home() {
   return (
     <main
-      className={`flex min-h-screen gap-4 flex-col space-y- bg-zinc-900/50 items-center  p-4 ${inter.className}`}
+      className={`flex min-h-screen gap-4 flex-col bg-black items-center  p-4 ${inter.className}`}
     >
       <One />
       <div className="flex flex-wrap-reverse w-full max-w-7xl gap-6 justify-center">
@@ -48,7 +47,7 @@ export default function Home() {
       </div> */}
       <Trades />
 
-      <div className="font-mono text-sm flex justify-between w-full max-w-7xl  items-center border-t  border-neutral-800 pt-2 border-r border-l rounded-t-3xl -mb-4 h-14 px-4">
+      <div className="font-mono text-sm flex justify-between w-full max-w-7xl  items-center border-t  border-neutral-800 pt-2 border-r border-l rounded-t-3xl -mb-4 h-14 px-4 ">
         <button className="hover:text-fuchsia-800 ">Terms</button>
         <span>© 2023 Atellix, Inc.</span>{" "}
         <button className="hover:text-fuchsia-800">MIT Licence</button>
