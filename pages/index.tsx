@@ -9,7 +9,6 @@ import Mached from "./components/Mached";
 import Trades from "./components/Trades";
 import Footer from "./components/Footer";
 import Head from "next/head";
-const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   return (
@@ -43,10 +42,8 @@ export default function Home() {
           content="https://user-images.githubusercontent.com/72444242/242270497-e1f8ac0a-6947-40e9-a591-b5cd30a6c034.jpg"
         />
       </Head>
-      <main>
-        <div
-          className={`flex min-h-screen gap-4 flex-col max-w-[1600px] mx-auto bg-black items-center px-2 md:px-4 ${inter.className}`}
-        >
+      <main className="bg-black">
+        <div className="flex min-h-screen gap-4 flex-col max-w-[1600px] mx-auto  items-center px-2 md:px-4">
           <Header />
           <div className="flex flex-wrap-reverse w-full gap-6 justify-center">
             <Order />
