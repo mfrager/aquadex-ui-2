@@ -29,7 +29,7 @@ export default function Home() {
         />
         <meta
           property="og:image"
-          content="https://private-user-images.githubusercontent.com/72444242/242262046-1ae084f9-1094-4258-b2c5-7a5a236e6844.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJrZXkxIiwiZXhwIjoxNjg1NTMzNTA3LCJuYmYiOjE2ODU1MzMyMDcsInBhdGgiOiIvNzI0NDQyNDIvMjQyMjYyMDQ2LTFhZTA4NGY5LTEwOTQtNDI1OC1iMmM1LTdhNWEyMzZlNjg0NC5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBSVdOSllBWDRDU1ZFSDUzQSUyRjIwMjMwNTMxJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIzMDUzMVQxMTQwMDdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT00MWE3MGNjYTQ3Yzg1YjhmZTM0OGI4Y2Y5YThmN2ZhMGM0ZWQzNDkyMDBkNTIyMWEzNzY2MTkwOTdlYTQ4MTUwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.gug9xUuMK_NrsEP1AI_XMlD1WzdiQkH649V9L55ueWA"
+          content="https://user-images.githubusercontent.com/72444242/242270497-e1f8ac0a-6947-40e9-a591-b5cd30a6c034.jpg"
         />
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://aquadex.com/market" />
@@ -40,7 +40,7 @@ export default function Home() {
         />
         <meta
           property="twitter:image"
-          content="https://private-user-images.githubusercontent.com/72444242/242262046-1ae084f9-1094-4258-b2c5-7a5a236e6844.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJrZXkxIiwiZXhwIjoxNjg1NTMzNTA3LCJuYmYiOjE2ODU1MzMyMDcsInBhdGgiOiIvNzI0NDQyNDIvMjQyMjYyMDQ2LTFhZTA4NGY5LTEwOTQtNDI1OC1iMmM1LTdhNWEyMzZlNjg0NC5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBSVdOSllBWDRDU1ZFSDUzQSUyRjIwMjMwNTMxJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIzMDUzMVQxMTQwMDdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT00MWE3MGNjYTQ3Yzg1YjhmZTM0OGI4Y2Y5YThmN2ZhMGM0ZWQzNDkyMDBkNTIyMWEzNzY2MTkwOTdlYTQ4MTUwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.gug9xUuMK_NrsEP1AI_XMlD1WzdiQkH649V9L55ueWA"
+          content="https://user-images.githubusercontent.com/72444242/242270497-e1f8ac0a-6947-40e9-a591-b5cd30a6c034.jpg"
         />
       </Head>
       <main>
