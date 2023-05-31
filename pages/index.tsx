@@ -1,57 +1,65 @@
-import Image from "next/image";
 import React from "react";
+import { SSRProvider } from "@react-aria/ssr";
 import { Inter } from "next/font/google";
-import One from "./components/One";
+import Header from "./components/Header";
 import Chart from "./components/Chart";
 import Order from "./components/Order";
-import Accounds from "./components/Accounds";
+import Accounts from "./components/Accounts";
 import Mached from "./components/Mached";
 import Trades from "./components/Trades";
+import Footer from "./components/Footer";
+import Head from "next/head";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   return (
-    <main
-      className={`flex min-h-screen gap-4 flex-col bg-black items-center  p-4 ${inter.className}`}
-    >
-      <One />
-      <div className="flex flex-wrap-reverse w-full max-w-7xl gap-6 justify-center">
-        <Order />
-        <Chart />
-      </div>
-      <div className="flex flex-wrap w-full max-w-7xl gap-6 justify-center">
-        <Accounds />
-        <Mached />
-      </div>
-      {/* <div className="flex items-start justify-center flex-col w-full max-w-7xl hover:border-fuchsia-950 border-neutral-800 from-inherit lg:static rounded-xl border bg-zinc-800/30 h-fit font-mono px-4 py-2 space-y-4">
+    <>
+      <Head>
         {" "}
-        <span className="text-xl">BID</span>
-        <Radio.Group orientation="horizontal" defaultValue="sm">
-          <Radio value="sm" size="sm" color="primary">
-            Limit Bid
-          </Radio>
-          <Radio value="secondary" size="sm" color="primary">
-            Market Bid
-          </Radio>
-        </Radio.Group>
-        <div className="w-full flex flex-wrap items-center gap-2">
-          {" "}
-          <Input placeholder="Bid Quantity" />
-          <Input placeholder="Bid Quantity" />
-          <div className="border-neutral-800 dark:from-inherit lg:static w-fit rounded-xl border px-4 py-1.5 bg-zinc-800/30">
-            <button className="font-mono font-bold hover:text-fuchsia-800">
-              Place BID
-            </button>
+        <link rel="icon" href="/a.png" />
+        <title>AquaDEX</title>
+        <meta name="title" content="AquaDEX" />
+        <meta name="description" content="The best decentralized exchange" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://aquadex.com/market" />
+        <meta property="og:title" content="AquaDEX" />
+        <meta
+          property="og:description"
+          content="The best decentralized exchange"
+        />
+        <meta
+          property="og:image"
+          content="https://private-user-images.githubusercontent.com/72444242/242262046-1ae084f9-1094-4258-b2c5-7a5a236e6844.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJrZXkxIiwiZXhwIjoxNjg1NTMzNTA3LCJuYmYiOjE2ODU1MzMyMDcsInBhdGgiOiIvNzI0NDQyNDIvMjQyMjYyMDQ2LTFhZTA4NGY5LTEwOTQtNDI1OC1iMmM1LTdhNWEyMzZlNjg0NC5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBSVdOSllBWDRDU1ZFSDUzQSUyRjIwMjMwNTMxJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIzMDUzMVQxMTQwMDdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT00MWE3MGNjYTQ3Yzg1YjhmZTM0OGI4Y2Y5YThmN2ZhMGM0ZWQzNDkyMDBkNTIyMWEzNzY2MTkwOTdlYTQ4MTUwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.gug9xUuMK_NrsEP1AI_XMlD1WzdiQkH649V9L55ueWA"
+        />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://aquadex.com/market" />
+        <meta property="twitter:title" content="AquaDEX" />
+        <meta
+          property="twitter:description"
+          content="The best decentralized exchange"
+        />
+        <meta
+          property="twitter:image"
+          content="https://private-user-images.githubusercontent.com/72444242/242262046-1ae084f9-1094-4258-b2c5-7a5a236e6844.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJrZXkxIiwiZXhwIjoxNjg1NTMzNTA3LCJuYmYiOjE2ODU1MzMyMDcsInBhdGgiOiIvNzI0NDQyNDIvMjQyMjYyMDQ2LTFhZTA4NGY5LTEwOTQtNDI1OC1iMmM1LTdhNWEyMzZlNjg0NC5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBSVdOSllBWDRDU1ZFSDUzQSUyRjIwMjMwNTMxJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDIzMDUzMVQxMTQwMDdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT00MWE3MGNjYTQ3Yzg1YjhmZTM0OGI4Y2Y5YThmN2ZhMGM0ZWQzNDkyMDBkNTIyMWEzNzY2MTkwOTdlYTQ4MTUwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.gug9xUuMK_NrsEP1AI_XMlD1WzdiQkH649V9L55ueWA"
+        />
+      </Head>
+      <main>
+        <div
+          className={`flex min-h-screen gap-4 flex-col max-w-[1600px] mx-auto bg-black items-center px-2 md:px-4 ${inter.className}`}
+        >
+          <Header />
+          <div className="flex flex-wrap-reverse w-full gap-6 justify-center">
+            <Order />
+            <Chart />
           </div>
+          <div className="flex flex-wrap w-full gap-6 justify-center">
+            <Accounts />
+            <Mached />
+          </div>
+          <Trades />
+          <Footer />
         </div>
-      </div> */}
-      <Trades />
-
-      <div className="font-mono text-sm flex justify-between w-full max-w-7xl  items-center border-t  border-neutral-800 pt-2 border-r border-l rounded-t-3xl -mb-4 h-14 px-4 ">
-        <button className="hover:text-fuchsia-800 ">Terms</button>
-        <span>© 2023 Atellix, Inc.</span>{" "}
-        <button className="hover:text-fuchsia-800">MIT Licence</button>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
