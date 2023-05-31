@@ -1,4 +1,5 @@
-![dex2](https://github.com/AleksRG/ATX/assets/72444242/1ae084f9-1094-4258-b2c5-7a5a236e6844)
+![dex](https://github.com/AleksRG/ATX/assets/72444242/e1f8ac0a-6947-40e9-a591-b5cd30a6c034)
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
