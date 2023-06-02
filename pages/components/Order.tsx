@@ -4,9 +4,9 @@ import React from "react";
 function Order() {
   return (
     <div className="relative group w-full xl:max-w-[32%] mt-4">
-      <div className="absolute inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900  filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
-      <div className="relative leading-none rounded-3xl bg-zinc-950 flex items-center ">
-        <div className="z-10 w-full items-center px-4 py-2 font-mono text-sm flex flex-col border-neutral-800/50 from-inherit hover:border-neutral-900 lg:static rounded-3xl border bg-zinc-800/30 h-96 justify-center space-y-4">
+      <div className="absolute -inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900  filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
+      <div className="relative leading-none rounded-3xl flex items-center">
+        <div className="z-10 w-full items-center px-4 py-2 font-mono text-sm flex flex-col border-neutral-800/50 from-inherit lg:static rounded-3xl border h-96 justify-center space-y-4 custom-border-1">
           {" "}
           <div className="w-full flex items-center gap-2 justify-between">
             <div className="border-lime-800 dark:from-inherit lg:static rounded-xl border px-2 py-1.5 bg-zinc-800/30 w-full">

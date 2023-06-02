@@ -5,7 +5,7 @@ import Header from "./components/Header";
 import Chart from "./components/Chart";
 import Order from "./components/Order";
 import Accounts from "./components/Accounts";
-import Mached from "./components/Mached";
+import Matched from "./components/Matched";
 import Trades from "./components/Trades";
 import Footer from "./components/Footer";
 import Head from "next/head";
@@ -45,13 +45,13 @@ export default function Home() {
       <main className="bg-black">
         <div className="flex min-h-screen gap-4 flex-col max-w-[1600px] mx-auto  items-center px-2 md:px-4">
           <Header />
-          <div className="flex flex-wrap-reverse w-full gap-6 justify-center">
-            <Order />
+          <div className="flex flex-wrap w-full gap-6 justify-center">
             <Chart />
+            <Order />
           </div>
           <div className="flex flex-wrap w-full gap-6 justify-center">
             <Accounts />
-            <Mached />
+            <Matched />
           </div>
           <Trades />
           <Footer />
