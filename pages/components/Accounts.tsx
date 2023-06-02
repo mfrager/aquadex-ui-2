@@ -27,7 +27,7 @@ function Accounts() {
     },*/
   ];
   return (
-    <div className="relative group w-full lg:max-w-[49%] mt-4">
+    <div className="relative group w-full mt-4">
       <div className="absolute -inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900 filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
 
       <div className="relative leading-none rounded-3xl bg-zinc-950 flex custom-border-1">

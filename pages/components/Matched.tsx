@@ -2,7 +2,7 @@ import React from "react";
 import { RectangleGroupIcon } from "@heroicons/react/24/solid";
 function Matched() {
   return (
-    <div className="relative group w-full lg:max-w-[49%] mt-4 h-fit">
+    <div className="relative group w-full mt-4 h-fit">
       <div className="absolute -inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900  filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
       <div className="relative leading-none rounded-3xl bg-zinc-950 flex justify-center items-center custom-border-1">
         <div className="z-10 w-full items-start  font-mono text-sm flex flex-col border-neutral-800/50 from-inherit hover:border-neutral-900 lg:static rounded-3xl border bg-zinc-800/30 justify-center h-48">

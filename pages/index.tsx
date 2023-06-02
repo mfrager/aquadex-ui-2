@@ -3,10 +3,12 @@ import { SSRProvider } from "@react-aria/ssr";
 import { Inter } from "next/font/google";
 import Header from "./components/Header";
 import Chart from "./components/Chart";
+import Book from "./components/Book";
 import Order from "./components/Order";
 import Accounts from "./components/Accounts";
 import Matched from "./components/Matched";
 import Trades from "./components/Trades";
+import History from "./components/History";
 import Footer from "./components/Footer";
 import Head from "next/head";
 
@@ -46,14 +48,17 @@ export default function Home() {
         <div className="flex min-h-screen gap-4 flex-col max-w-[1600px] mx-auto  items-center px-2 md:px-4">
           <Header />
           <div className="flex flex-wrap w-full gap-6 justify-center">
-            <Chart />
-            <Order />
+            <div class="flex flex-col w-full xl:max-w-[66%]">
+              <Chart />
+              <Book />
+              <Trades />
+            </div>
+            <div class="flex flex-col w-full xl:max-w-[32%]">
+              <Accounts />
+              <Order />
+              <Matched />
+            </div>
           </div>
-          <div className="flex flex-wrap w-full gap-6 justify-center">
-            <Accounts />
-            <Matched />
-          </div>
-          <Trades />
           <Footer />
         </div>
       </main>
