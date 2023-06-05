@@ -50,7 +50,7 @@ function Accounts() {
                 key={index}
               >
                 <div className="w-[33%] border-r justify-start items-center flex space-x-2 border-neutral-800/50">
-                  <img className="w-6 h-6 rounded-full" src={logo} />
+                  <img className="w-8 h-8 rounded-full" src={logo} />
                   <span>{name}</span>
                 </div>
                 <span className="w-[33%] border-r my-2 border-neutral-800/50">
