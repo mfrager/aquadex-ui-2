@@ -24,13 +24,14 @@ function Order() {
           <div className="flex flex-col w-full space-y-2">
             <span>Order type</span>
             <Dropdown isBordered>
-              <Dropdown.Button size={"sm"} className="font-mono">
-                <span className="text-slate-400/70">Market/Limit Order</span>
+              <Dropdown.Button size={"lg"} className="font-mono">
+                <span className="text-slate-400/70">Total Price</span>
               </Dropdown.Button>
 
               <Dropdown.Menu className="font-mono" color="secondary">
-                <Dropdown.Item key="new">-- -- --</Dropdown.Item>
-                <Dropdown.Item key="copy">-- -- --</Dropdown.Item>
+                <Dropdown.Item key="market_price">Total Price</Dropdown.Item>
+                <Dropdown.Item key="market_quantity">Total Quantity</Dropdown.Item>
+                <Dropdown.Item key="limit">Quantity At Price</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </div>

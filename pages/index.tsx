@@ -48,26 +48,26 @@ export default function Home() {
         <div className="flex min-h-screen gap-4 flex-col max-w-[1600px] mx-auto  items-center px-2 md:px-4">
           <Header />
           <div className="flex flex-wrap w-full gap-6 justify-center">
-            <div class="flex flex-col w-full xl:max-w-[66%]">
+            <div className="flex flex-col w-full xl:max-w-[66%]">
               <Chart />
             </div>
-            <div class="flex flex-col w-full xl:max-w-[32%]">
+            <div className="flex flex-col w-full xl:max-w-[32%]">
               <Order />
             </div>
           </div>
           <div className="flex flex-wrap flex-row-reverse w-full gap-6 justify-center">
-            <div class="flex flex-col w-full xl:max-w-[32%]">
+            <div className="flex flex-col w-full xl:max-w-[32%]">
               <Accounts />
             </div>
-            <div class="flex flex-col w-full xl:max-w-[66%]">
+            <div className="flex flex-col w-full xl:max-w-[66%]">
               <Book />
             </div>
           </div>
           <div className="flex flex-wrap flex-row-reverse w-full gap-6 justify-center">
-            <div class="flex flex-col w-full xl:max-w-[32%]">
+            <div className="flex flex-col w-full xl:max-w-[32%]">
               <Matched />
             </div>
-            <div class="flex flex-col w-full xl:max-w-[66%]">
+            <div className="flex flex-col w-full xl:max-w-[66%]">
               <Trades />
             </div>
           </div>
