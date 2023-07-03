@@ -35,17 +35,16 @@ function Order() {
               </Dropdown.Menu>
             </Dropdown>
           </div>
-          {/* Quality ATX */}
+          {/* Quantity ATX */}
           <div className="w-full flex justify-between gap-2">
             <div className="flex flex-col space-y-2 w-full">
-              <span>Quality: ATX</span>
+              <div>Quantity<span className="float-right mr-5">ATX</span></div>
               <div className="bg-[#16181a] w-full h-8 px-4 flex items-center rounded-lg text-slate-400/70">
                 150
               </div>
             </div>
             <div className="flex flex-col space-y-2 w-full">
-              <span>Price: USDC</span>
-
+              <div>Price<span className="float-right mr-5">USDC</span></div>
               <div className="bg-[#16181a] w-full h-8 px-4 flex items-center rounded-lg text-slate-400/70">
                 42.00
               </div>
