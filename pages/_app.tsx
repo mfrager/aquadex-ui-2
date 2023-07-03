@@ -25,7 +25,8 @@ import {
     SolletWalletAdapter,
     TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
-import $solana from "../atellix/solana-client";
+
+import AquaProvider from "./components/AquaProvider";
 
 const theme = createTheme({
     type: "dark",
@@ -59,7 +60,9 @@ export default function App({ Component, pageProps }: AppProps) {
             <ConnectionProvider endpoint={endpoint}>
                 <WalletProvider wallets={wallets} autoConnect={true}>
                     <WalletModalProvider>
-                        <Component {...pageProps} />
+                        <AquaProvider>
+                            <Component {...pageProps} />
+                        </AquaProvider>
                     </WalletModalProvider>
                 </WalletProvider>
             </ConnectionProvider>
