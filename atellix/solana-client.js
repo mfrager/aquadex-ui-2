@@ -243,7 +243,7 @@ export default {
         return nodeSpec
     },
     decodeOrdersVec(pageTableEntry, pages) {
-        console.log(pageTableEntry)
+        //console.log(pageTableEntry)
         const headerSize = pageTableEntry['header_size']
         const offsetSize = pageTableEntry['offset_size']
         const stOrder = lo.struct([

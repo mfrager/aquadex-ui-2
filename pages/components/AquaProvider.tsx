@@ -14,6 +14,10 @@ const AquaProvider = ({ children }) => {
     const [marketAccounts, setMarketAccounts] = useState({})
     const [marketSummary, setMarketSummary] = useState({})
     const [orderbookData, setOrderbookData] = useState({})
+    const [tokenList, setTokenList] = useState([
+        { abbr: '', amount: '', name: '', symbol: '', create: false },
+        { abbr: '', amount: '', name: '', symbol: '', create: false },
+    ])
 
     $solana.init()
     $solana.loadProgram('aqua-dex')
@@ -37,13 +41,63 @@ const AquaProvider = ({ children }) => {
         }
     }
 
-    async function updateOrderbook(marketData) {
+    async function updateBalance(mint, wallet, scale, decimals, idx) {
+        var tkl = [tokenList[0], tokenList[1]]
+        const tokens = await $solana.getTokenBalance(mint, wallet)
+        if (tokens === '0') {
+            const hasAccount = await $solana.hasTokenAccount(mint, wallet)
+            //console.log('Has Account: ' + mint + ': ' + hasAccount)
+            if (!hasAccount) {
+                tkl[idx]['create'] = true
+            } else {
+                tkl[idx]['create'] = false
+            }
+        }
+        //console.log(mint.toString() + ' ' + tokens + ' ' + scale + ' ' + decimals)
+        var bal = new Number(tokens / scale)
+        bal = bal.toLocaleString(undefined, {
+            'minimumFractionDigits': decimals,
+            'maximumFractionDigits': decimals,
+        })
+        tkl[idx]['amount'] = bal
+        setTokenList(tkl)
+    }
+
+    async function updateMarket(marketSpec) {
         if (!marketRefresh) {
             setMarketRefresh(true)
+            const marketData = marketSpec.marketData
+            const walletPK = marketSpec.userWallet
+
+            // Tokens
+            const mktScale = marketSpec.mktTokenScale
+            const mktDecimals = marketSpec.mktTokenDecimals
+            const prcScale = marketSpec.prcTokenScale
+            const prcDecimals = marketSpec.prcTokenDecimals
+            var tkl = tokenList
+            tkl[0].name = marketSpec.mktTokenLabel
+            tkl[1].name = marketSpec.prcTokenLabel
+            tkl[0].symbol = marketSpec.mktTokenSymbol
+            tkl[1].symbol = marketSpec.prcTokenSymbol
+            if (marketSpec.marketMeta.metadata.marketToken.image) {
+                tkl[0].image = marketSpec.marketMeta.metadata.marketToken.image
+            }
+            if (marketSpec.marketMeta.metadata.pricingToken.image) {
+                tkl[1].image = marketSpec.marketMeta.metadata.pricingToken.image
+            }
+            Promise.all([
+                updateBalance(marketData.mktMint, walletPK, mktScale, mktDecimals, 0),
+                updateBalance(marketData.prcMint, walletPK, prcScale, prcDecimals, 1),
+                //settlementEntries(marketData.settle0),
+            ]).then(() => {
+                setTokenList(tkl)
+            })
+            
+            // Orderbook
             const maxOrders = 10
             const orderBook = await $solana.getAccountInfo(marketData.orders)
             const bookData = $solana.decodeOrderBook(orderBook.data)
-            console.log(bookData)
+            //console.log(bookData)
             setOrderbookData({
                 'bids': (bookData.bids.length > maxOrders) ? bookData.bids.slice(0, maxOrders) : bookData.bids,
                 'asks': (bookData.asks.length > maxOrders) ? bookData.asks.slice(0, maxOrders) : bookData.asks,
@@ -61,11 +115,11 @@ const AquaProvider = ({ children }) => {
     }
 
     async function setupAquaDEX(marketPK, walletPK) {
-        console.log(marketPK.toString())
+        //console.log(marketPK.toString())
         const marketData = await $solana.getAccountData('aqua-dex', 'market', marketPK)
-        console.log(marketData)
+        //console.log(marketData)
         const marketStateData = await $solana.getAccountData('aqua-dex', 'marketState', marketData.state)
-        console.log(marketStateData)
+        //console.log(marketStateData)
         const marketAgent = await $solana.programAddress([marketPK.toBuffer()], $solana.program['aqua-dex'].programId)
         const marketAgentPK = new PublicKey(marketAgent.pubkey)
         const tokenVault1 = await $solana.associatedTokenAddress(marketAgentPK, marketData.mktMint)
@@ -87,7 +141,7 @@ const AquaProvider = ({ children }) => {
             'settleA': marketStateData.settleA,
             'settleB': marketStateData.settleB,
         })
-        setMarketSummary({
+        const marketSpec = {
             'marketLoading': false,
             'marketReady': true,
             'marketTitle': marketMeta.name || 'SPL Token Swap Market',
@@ -99,13 +153,14 @@ const AquaProvider = ({ children }) => {
             'prcTokenLabel': marketMeta.metadata.pricingToken.name || 'Pricing Token',
             'mktTokenSymbol': marketMeta.metadata.marketToken.symbol || 'MKT',
             'prcTokenSymbol': marketMeta.metadata.pricingToken.symbol || 'PRC',
-            'mktTokenDecimals': new Number(marketData.mktDecimals),
-            'prcTokenDecimals': new Number(marketData.prcDecimals),
+            'mktTokenDecimals': Math.min(parseInt(marketData.mktDecimals), 4),
+            'prcTokenDecimals': Math.min(parseInt(marketData.prcDecimals), 4),
             'mktTokenScale': 10 ** new Number(marketData.mktDecimals),
             'prcTokenScale': 10 ** new Number(marketData.prcDecimals),
-        })
+        }
+        setMarketSummary(marketSpec)
         setMarketRefresh(false)
-        await updateOrderbook(marketData)
+        await updateMarket(marketSpec)
     }
 
     useEffect(() => {
@@ -119,6 +174,10 @@ const AquaProvider = ({ children }) => {
     useEffect(() => {
         bus.emit('setOrderbookData', orderbookData)
     }, [orderbookData])
+
+    useEffect(() => {
+        bus.emit('setTokenList', tokenList)
+    }, [tokenList])
 
     const connectWallet = new Promise((resolve, reject) => {
         bus.on('setIsConnected', (connected, pkey) => {
@@ -173,7 +232,8 @@ const AquaProvider = ({ children }) => {
             setCurrentMarket(market)
             if (marketReady && publicKey !== null) {
                 console.log('Reload Market')
-                const marketAddr = market.marketAddr
+                //console.log(market)
+                const marketAddr = market.address
                 const marketKeyData = bs58.decode(marketAddr)
                 if (marketKeyData.length === 32) {
                     const marketPK = new PublicKey(marketAddr)
