@@ -1,8 +1,12 @@
-import React from "react";
-import { Square3Stack3DIcon } from "@heroicons/react/24/solid";
+import React, { useEffect, useState } from 'react'
+import { Square3Stack3DIcon } from "@heroicons/react/24/solid"
+import bus from "@/emitter"
 function Book() {
     // data
-    const bidData = [
+    const [bidData, setBidData] = useState([])
+    const [askData, setAskData] = useState([])
+    const [marketSummary, setMarketSummary] = useState({})
+    /*const bidData = [
         {
             maker: "4RD..tbU",
             quantity: "5.00",
@@ -13,7 +17,7 @@ function Book() {
             quantity: "5.00",
             price: "0.7000",
         },
-    ];
+    ]
     const askData = [
         {
             maker: "4RD..tbU",
@@ -30,7 +34,41 @@ function Book() {
             quantity: "5.00",
             price: "0.7000",
         },
-    ];
+    ]*/
+    bus.on('setMarketSummary', (mktSummary) => {
+        if (mktSummary) {
+            setMarketSummary(mktSummary)
+        }
+    })
+    bus.on('setOrderbookData', (orderbookData) => {
+        if (orderbookData && 'bids' in orderbookData && 'asks' in orderbookData) {
+            var bids = []
+            orderbookData.bids.forEach((item) => {
+                const maker = item.owner.substring(0, 4) + '...' + item.owner.substring(item.owner.length - 4, item.owner.length)
+                const qty = (new Number(item.amount / marketSummary.mktTokenScale)).toFixed(2)
+                const price = (new Number(item.price / marketSummary.prcTokenScale)).toFixed(4)
+                bids.push({
+                    'maker': maker,
+                    'quantity': qty,
+                    'price': price,
+                })
+            })
+            setBidData(bids)
+            var asks = []
+            orderbookData.asks.forEach((item) => {
+                const maker = item.owner.substring(0, 4) + '...' + item.owner.substring(item.owner.length - 4, item.owner.length)
+                const qty = (new Number(item.amount / marketSummary.mktTokenScale)).toFixed(2)
+                const price = (new Number(item.price / marketSummary.prcTokenScale)).toFixed(4)
+                asks.push({
+                    'maker': maker,
+                    'quantity': qty,
+                    'price': price,
+                })
+            })
+            setAskData(asks)
+        }
+    })
+    
     return (
         <div className="relative group w-full mt-4">
             <div className="absolute -inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900 filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
@@ -79,7 +117,7 @@ function Book() {
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
-export default Book;
+export default Book
