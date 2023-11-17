@@ -50,6 +50,7 @@ function Accounts() {
                                     <tr key={index}>
                                         <td><img className="w-8 h-8 rounded-full" src={logo} /></td>
                                         <td>{symbol}</td>
+                                        <td>{name}</td>
                                         <td className="text-right">{balance}</td>
                                     </tr>
                                 ))}
