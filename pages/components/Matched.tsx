@@ -120,7 +120,7 @@ function Matched() {
                     )}
                     {marketOrder.map(
                         ({ image, name, symbol, total, amount, key }, index) => (
-                            <div className="flex w-[90%] rounded-2xl self-center border justify-around mb-2">
+                            <div className="flex w-[90%] rounded-2xl self-center border justify-around mb-2" key={index}>
                                 <div className="flex flex-col self-center">
                                     <img className="w-8 h-8 rounded-full" src={image} />
                                 </div>

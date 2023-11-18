@@ -151,7 +151,7 @@ const AquaProvider = ({ children }) => {
                 'bids': (bookData.bids.length > maxOrders) ? bookData.bids.slice(0, maxOrders) : bookData.bids,
                 'asks': (bookData.asks.length > maxOrders) ? bookData.asks.slice(0, maxOrders) : bookData.asks,
             })
-            console.log('Orderbook loaded')
+            //console.log('Orderbook loaded')
             $solana.provider.connection.onAccountChange(marketData.orders, (accountInfo, context) => {
                 const bookUpdate = $solana.decodeOrderBook(accountInfo.data)
                 setOrderbookData({
@@ -165,6 +165,7 @@ const AquaProvider = ({ children }) => {
     }
 
     async function setupAquaDEX(marketPK, walletPK) {
+        //console.log('setupAquaDEX')
         //console.log(marketPK.toString())
         const marketData = await $solana.getAccountData('aqua-dex', 'market', marketPK)
         //console.log(marketData)
@@ -213,6 +214,22 @@ const AquaProvider = ({ children }) => {
         await updateMarket(marketSpec)
     }
 
+    async function startAquaDEX() {
+        try {
+            const result = await Promise.all([connectWallet, connectMarket])
+            //console.log('Wallet: ' + result[0].toString())
+            const marketAddr = result[1].address
+            const marketKeyData = bs58.decode(marketAddr)
+            if (marketKeyData.length === 32) {
+                const marketPK = new PublicKey(marketAddr)
+                await setupAquaDEX(marketPK, result[0])
+                setMarketReady(true)
+            }
+        } catch(error) {
+            console.log(error)
+        }
+    } 
+
     useEffect(() => {
         bus.emit('setMarketAccounts', marketAccounts)
     }, [marketAccounts])
@@ -248,6 +265,8 @@ const AquaProvider = ({ children }) => {
         })
     })
 
+    startAquaDEX().then(() => {})
+
     useEffect(() => {
         setIsConnected(publicKey !== null)
     }, [publicKey])
@@ -265,21 +284,7 @@ const AquaProvider = ({ children }) => {
         }
     }, [isConnected])
 
-    Promise.all([connectWallet, connectMarket]).then((result) => {
-        console.log('Wallet: ' + result[0].toString())
-        const marketAddr = result[1].address
-        const marketKeyData = bs58.decode(marketAddr)
-        if (marketKeyData.length === 32) {
-            const marketPK = new PublicKey(marketAddr)
-            setupAquaDEX(marketPK, result[0]).then(() => {
-                setMarketReady(true)
-            }).catch((error) => {
-                console.log(error)
-            })
-        }
-    }).catch((error) => {
-        console.log(error)
-    })
+    
 
     bus.on('setMarketSelected', (market) => {
         if (market) {
