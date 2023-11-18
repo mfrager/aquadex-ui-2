@@ -7,7 +7,6 @@ import Order from "./components/Order";
 import Accounts from "./components/Accounts";
 import Matched from "./components/Matched";
 import Trades from "./components/Trades";
-import History from "./components/History";
 import Footer from "./components/Footer";
 import Head from "next/head";
 
@@ -73,15 +72,8 @@ export default function Home() {
                             <Chart />
                         </div>
                         <div className="flex flex-col w-full xl:max-w-[32%]">
-                            <Order />
-                        </div>
-                    </div>
-                    <div className="flex flex-wrap flex-row-reverse w-full gap-6 justify-center">
-                        <div className="flex flex-col w-full xl:max-w-[32%]">
                             <Accounts />
-                        </div>
-                        <div className="flex flex-col w-full xl:max-w-[66%]">
-                            <Book />
+                            <Order />
                         </div>
                     </div>
                     <div className="flex flex-wrap flex-row-reverse w-full gap-6 justify-center">
@@ -89,6 +81,7 @@ export default function Home() {
                             <Matched />
                         </div>
                         <div className="flex flex-col w-full xl:max-w-[66%]">
+                            <Book />
                             <Trades />
                         </div>
                     </div>

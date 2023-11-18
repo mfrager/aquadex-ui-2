@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
+import { DateTime } from 'luxon'
 import $solana from "@/atellix/solana-client"
 import bs58 from 'bs58'
 import bus from "@/emitter"
@@ -13,6 +14,7 @@ const AquaProvider = ({ children }) => {
     const [marketRefresh, setMarketRefresh] = useState(false)
     const [marketAccounts, setMarketAccounts] = useState({})
     const [marketSummary, setMarketSummary] = useState({})
+    const [tradeList, setTradeList] = useState([])
     const [settleList, setSettleList] = useState([])
     const [orderbookData, setOrderbookData] = useState({})
     const [tokenList, setTokenList] = useState([
@@ -20,6 +22,7 @@ const AquaProvider = ({ children }) => {
         { abbr: '', amount: '', name: '', symbol: '', create: false },
     ])
     var logUpdates = {}
+    var tradeUpdates = false
 
     $solana.init()
     $solana.loadProgram('aqua-dex')
@@ -41,6 +44,20 @@ const AquaProvider = ({ children }) => {
         } else {
             return {}
         }
+    }
+
+    async function updateTradeLog(logSpec) {
+        var list = []
+        for (var i = 0; i < logSpec.logs.length; i++) {
+            var item = logSpec.logs[i]
+            item['maker'] = item['maker'].toString()
+            item['taker'] = item['taker'].toString()
+            var lastTs = new Date(item['ts'] * 1000)
+            var lastDt = DateTime.fromJSDate(lastTs)
+            item['ts'] = lastDt.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)
+            list.push(item)
+        }
+        setTradeList(list)
     }
 
     async function updateBalance(mint, wallet, scale, decimals, idx) {
@@ -161,6 +178,20 @@ const AquaProvider = ({ children }) => {
                 console.log('Orderbook updated')
             })
 
+            // Trade Log
+            const tradeLogMax = 10
+            const tradeLogPK = marketData.tradeLog
+            const tradeLogInfo = await $solana.getAccountInfo(tradeLogPK)
+            const tradeLogSpec = $solana.decodeTradeLog(tradeLogInfo.data, tradeLogMax)
+            updateTradeLog(tradeLogSpec)
+            if (!tradeUpdates) {
+                tradeUpdates = true
+                $solana.provider.connection.onAccountChange(tradeLogPK, async (accountInfo, context) => {
+                    const tradeLogUpdate = $solana.decodeTradeLog(accountInfo.data, tradeLogMax)
+                    updateTradeLog(tradeLogUpdate)
+                    console.log('Trade Log updated')
+                }) 
+            }
         }
     }
 
@@ -245,6 +276,10 @@ const AquaProvider = ({ children }) => {
     useEffect(() => {
         bus.emit('setSettleList', settleList)
     }, [settleList])
+
+    useEffect(() => {
+        bus.emit('setTradeList', tradeList)
+    }, [tradeList])
 
     useEffect(() => {
         bus.emit('setTokenList', tokenList)

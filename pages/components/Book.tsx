@@ -70,7 +70,7 @@ function Book() {
     })
     
     return (
-        <div className="relative group w-full mt-4">
+        <div className="relative group w-full mt-3 mb-3">
             <div className="absolute -inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900 filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
             <div className="relative leading-none rounded-3xl flex items-center custom-border-1">
                 <div className="flex flex-wrap w-full font-mono text-sm">

@@ -16,13 +16,9 @@ require("../styles/globals.css");
 
 import React, { useMemo, useEffect } from "react";
 import {
-    GlowWalletAdapter,
-    LedgerWalletAdapter,
+    CoinbaseWalletAdapter,
     PhantomWalletAdapter,
-    SlopeWalletAdapter,
     SolflareWalletAdapter,
-    SolletExtensionWalletAdapter,
-    SolletWalletAdapter,
     TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 
@@ -44,13 +40,9 @@ export default function App({ Component, pageProps }: AppProps) {
     const endpoint = useMemo(() => clusterApiUrl(network), [network]);
     const wallets = useMemo(
         () => [
-            new LedgerWalletAdapter(),
             new PhantomWalletAdapter(),
-            new GlowWalletAdapter({ network }),
-            new SlopeWalletAdapter({ network }),
-            new SolletExtensionWalletAdapter({ network }),
-            new SolletWalletAdapter({ network }),
             new SolflareWalletAdapter({ network }),
+            new CoinbaseWalletAdapter(),
             new TorusWalletAdapter(),
         ],
         [network]
