@@ -13,11 +13,13 @@ const AquaProvider = ({ children }) => {
     const [marketRefresh, setMarketRefresh] = useState(false)
     const [marketAccounts, setMarketAccounts] = useState({})
     const [marketSummary, setMarketSummary] = useState({})
+    const [settleList, setSettleList] = useState([])
     const [orderbookData, setOrderbookData] = useState({})
     const [tokenList, setTokenList] = useState([
         { abbr: '', amount: '', name: '', symbol: '', create: false },
         { abbr: '', amount: '', name: '', symbol: '', create: false },
     ])
+    var logUpdates = {}
 
     $solana.init()
     $solana.loadProgram('aqua-dex')
@@ -63,6 +65,42 @@ const AquaProvider = ({ children }) => {
         setTokenList(tkl)
     }
 
+    async function settlementEntries(firstLog, walletPK, marketAddr) {
+        var nextLog = firstLog.toString()
+        var logAccounts = []
+        var entries = []
+        var vault = await $solana.getUserVault(new PublicKey(marketAddr), walletPK)
+        if (vault) {
+            logAccounts.push(vault.publicKey)
+            entries.push({
+                'vault': vault.publicKey,
+                'mkt_token_balance': new Number(vault.mktTokens),
+                'prc_token_balance': new Number(vault.prcTokens),
+            })
+        }
+        do {
+            try {
+                var logPK = new PublicKey(nextLog)
+                var logInfo = await $solana.getAccountInfo(logPK)
+                logAccounts.push(logPK)
+                var logData = $solana.decodeSettlementLog(logInfo.data, walletPK)
+                for (var i = 0; i < logData.entries.length; i++) {
+                    var entry = logData.entries[i]
+                    entry['log'] = logPK
+                    entry['prev'] = new PublicKey(logData.header.prev)
+                    entry['next'] = new PublicKey(logData.header.next)
+                    entries.push(entry)
+                }
+                nextLog = logData.header.next
+            } catch (error) {
+                console.log('Error reading settlement logs: ' + error)
+                nextLog = '11111111111111111111111111111111'
+            }
+        } while (nextLog !== '11111111111111111111111111111111')
+        setSettleList(entries)
+        return logAccounts
+    }
+
     async function updateMarket(marketSpec) {
         if (!marketRefresh) {
             setMarketRefresh(true)
@@ -88,9 +126,20 @@ const AquaProvider = ({ children }) => {
             Promise.all([
                 updateBalance(marketData.mktMint, walletPK, mktScale, mktDecimals, 0),
                 updateBalance(marketData.prcMint, walletPK, prcScale, prcDecimals, 1),
-                //settlementEntries(marketData.settle0),
-            ]).then(() => {
+                settlementEntries(marketData.settle0, walletPK, marketSpec.marketAddr),
+            ]).then((results) => {
                 setTokenList(tkl)
+                var logAccounts = results[2]
+                for (var i = 0; i < logAccounts.length; i++) {
+                    var k = logAccounts[i].toString()
+                    if (!logUpdates[k]) {
+                        logUpdates[k] = true
+                        $solana.provider.connection.onAccountChange(logAccounts[i], async (accountInfo, context) => {
+                            console.log('Updated settlement log')
+                            await settlementEntries(marketData.settle0, walletPK, marketSpec.marketAddr)
+                        })
+                    }
+                }
             })
             
             // Orderbook
@@ -111,6 +160,7 @@ const AquaProvider = ({ children }) => {
                 })
                 console.log('Orderbook updated')
             })
+
         }
     }
 
@@ -174,6 +224,10 @@ const AquaProvider = ({ children }) => {
     useEffect(() => {
         bus.emit('setOrderbookData', orderbookData)
     }, [orderbookData])
+
+    useEffect(() => {
+        bus.emit('setSettleList', settleList)
+    }, [settleList])
 
     useEffect(() => {
         bus.emit('setTokenList', tokenList)
