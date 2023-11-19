@@ -1,17 +1,29 @@
 import React, { useEffect, useState } from 'react'
 import { RectangleGroupIcon } from "@heroicons/react/24/solid"
 import bus from "@/emitter"
+import $solana from "@/atellix/solana-client"
+
 function Matched() {
+    const [settleList, setSettleList] = useState([])
     const [settleFunds, setSettleFunds] = useState({'unsettled': false})
     const [marketOrder, setMarketOrder] = useState([])
     const [marketHasOrders, setMarketHasOrders] = useState(false)
     const [marketSummary, setMarketSummary] = useState({})
+    const [marketAccounts, setMarketAccounts] = useState({})
     bus.on('setMarketSummary', (mktSummary) => {
         if (mktSummary) {
             setMarketSummary(mktSummary)
         }
     })
+    bus.on('setMarketAccounts', (mktAccounts) => {
+        if (mktAccounts) {
+            setMarketAccounts(mktAccounts)
+        }
+    })
     bus.on('setSettleList', (settleData) => {
+        if (settleData) {
+            setSettleList(settleData)
+        }
         if (settleData.length) {
             var mt = 0
             var pt = 0
@@ -84,6 +96,7 @@ function Matched() {
                     var total = new Number(order.amount / marketSummary.mktTokenScale)
                     total = total * new Number(order.price / marketSummary.prcTokenScale)
                     item['name'] = 'Bid'
+                    item['side'] = 'bid'
                     item['total'] = total.toFixed(2)
                     item['symbol'] = marketSummary.prcTokenSymbol
                     if (marketSummary.marketMeta.metadata.pricingToken.image) {
@@ -92,6 +105,7 @@ function Matched() {
                 } else if (order.type === 'ask') {
                     var total = new Number(order.amount / marketSummary.mktTokenScale)
                     item['name'] = 'Ask'
+                    item['side'] = 'ask'
                     item['total'] = total.toFixed(2)
                     item['symbol'] = marketSummary.mktTokenSymbol
                     if (marketSummary.marketMeta.metadata.marketToken.image) {
@@ -108,6 +122,28 @@ function Matched() {
             }
         }
     })
+
+    async function cancelOrder(side, key) {
+        //console.log('Cancel: ' + key)
+        var orderSpec = {
+            'orderId': key,
+            'orderType': side,
+        }
+        //console.log(orderSpec)
+        const txid = await $solana.cancelOrder(marketAccounts, orderSpec)
+        //console.log(txid)
+    }
+
+    async function withdraw() {
+        //console.log('Withdraw')
+        var orderSpec = {
+            'logEntries': settleList,
+        }
+        //console.log(orderSpec)
+        const txid = await $solana.withdrawTokens(marketAccounts, orderSpec)
+        //console.log(txid)
+    }
+
     return (
         <div className="relative group w-full mt-4 h-fit">
             <div className="absolute -inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900 filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
@@ -119,7 +155,7 @@ function Matched() {
                         <span className="mt-2 mb-2 mx-auto text-slate-400/70">No Active Orders</span>
                     )}
                     {marketOrder.map(
-                        ({ image, name, symbol, total, amount, key }, index) => (
+                        ({ image, name, side, symbol, total, amount, key }, index) => (
                             <div className="flex w-[90%] rounded-2xl self-center border justify-around mb-2" key={index}>
                                 <div className="flex flex-col self-center">
                                     <img className="w-8 h-8 rounded-full" src={image} />
@@ -133,8 +169,8 @@ function Matched() {
                                     </div>
                                 </div>
                                 <div className="flex flex-col w-[45%] self-center mr-2">
-                                    <div className=" dark:from-inherit lg:static w-full    flex items-end justify-end ">
-                                        <button className="font-mono flex items-center justify-center space-x-4 font-bold border-violet-900 py-1.5 border rounded-xl    px-2 w-32">
+                                    <div className=" dark:from-inherit lg:static w-full flex items-end justify-end">
+                                        <button className="font-mono flex items-center justify-center space-x-4 font-bold border-violet-900 py-1.5 border rounded-xl    px-2 w-32" onClick={() => cancelOrder(side, key)}>
                                             <span>Cancel {name}</span>
                                         </button>
                                     </div>
@@ -160,8 +196,8 @@ function Matched() {
                                 ) : null}
                             </div>
                             <div className="flex flex-col w-[40%] self-center mr-3">
-                                <div className=" dark:from-inherit lg:static w-full    flex items-end justify-end ">
-                                    <button className="font-mono flex items-center justify-center space-x-4 font-bold border-violet-900 py-1.5 border rounded-xl    px-2 w-32">
+                                <div className=" dark:from-inherit lg:static w-full flex items-end justify-end">
+                                    <button className="font-mono flex items-center justify-center space-x-4 font-bold border-violet-900 py-1.5 border rounded-xl px-2 w-32" onClick={() => withdraw()}>
                                         <span>Withdraw</span>
                                     </button>
                                 </div>

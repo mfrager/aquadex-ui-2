@@ -39,13 +39,8 @@ export default {
     },
     getProvider(adapter) {
         let apiUrl = SOLANA_API_URL
-        let wallet = {
-            publicKey: adapter.publicKey,
-            signTransaction: function (transaction) { return adapter.signTransaction(transaction) },
-            signAllTransactions: function (transactions) { return adapter.signAllTransactions(transactions) }
-        }
         let connection = new Connection(apiUrl, { commitment: 'confirmed' })
-        let provider = new AnchorProvider(connection, wallet, { commitment: 'confirmed' })
+        let provider = new AnchorProvider(connection, adapter, { commitment: 'confirmed' })
         this.provider = provider
         return provider
     },
@@ -680,11 +675,12 @@ export default {
             }
         }
         this.provider.opts['skipPreflight'] = true
-        return await this.provider.registerAndSend(tx, async (sig) => {
+        return await this.provider.sendAndConfirm(tx)
+        /*return await this.provider.registerAndSend(tx, async (sig) => {
             const sigtxt = bs58.encode(sig)
             console.log('Sending transaction: ' + sigtxt)
             return await this.registerFn(sigtxt)
-        })
+        })*/
     },
     async cancelOrder(marketAccounts, orderSpec) {
         var accounts = {
@@ -717,11 +713,7 @@ export default {
             operationSpec
         ))
         this.provider.opts['skipPreflight'] = true
-        return await this.provider.registerAndSend(tx, async (sig) => {
-            const sigtxt = bs58.encode(sig)
-            console.log('Sending transaction: ' + sigtxt)
-            return await this.registerFn(sigtxt)
-        })
+        return await this.provider.sendAndConfirm(tx)
     },
     async withdrawTokens(marketAccounts, withdrawSpec) {
         var entries = withdrawSpec.logEntries
@@ -765,11 +757,7 @@ export default {
             }
         }
         this.provider.opts['skipPreflight'] = true
-        return await this.provider.registerAndSend(tx, async (sig) => {
-            const sigtxt = bs58.encode(sig)
-            console.log('Sending transaction: ' + sigtxt)
-            return await this.registerFn(sigtxt)
-        })
+        return await this.provider.sendAndConfirm(tx)
     },
     async getUserVault(market, user) {
         const aquadex = this.loadProgram('aqua-dex')
@@ -792,7 +780,7 @@ export default {
         }
         return null
     },
-    async createTokenAccount(mint, wallet) {
+    /*async createTokenAccount(mint, wallet) {
         const tokenInfo = await this.associatedTokenAddress(wallet, mint)
         const tokenPK = new PublicKey(tokenInfo.pubkey)
         const tx = new Transaction()
@@ -804,5 +792,5 @@ export default {
             console.log('Sending transaction: ' + sigtxt)
             return await this.registerFn(sigtxt)
         })
-    },
+    },*/
 }

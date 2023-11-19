@@ -1,11 +1,14 @@
 import { Checkbox, Dropdown, Input, Progress } from "@nextui-org/react"
 import React, { useEffect, useState } from 'react'
 import bus from "@/emitter"
-//import $solana from "@/atellix/solana-client"
+import $solana from "@/atellix/solana-client"
 
 function Order() {
     const [orderType, setOrderType] = useState('bid')
     const [orderMode, setOrderMode] = useState('market_price')
+    const [inputPrice, setInputPrice] = useState('')
+    const [inputQty, setInputQty] = useState('')
+    const [marketAccounts, setMarketAccounts] = useState({})
     const [marketSummary, setMarketSummary] = useState({
         'mktTokenSymbol': '',
         'prcTokenSymbol': '',
@@ -15,6 +18,44 @@ function Order() {
             setMarketSummary(mktSummary)
         }
     })
+    bus.on('setMarketAccounts', (mktAccounts) => {
+        if (mktAccounts) {
+            setMarketAccounts(mktAccounts)
+        }
+    })
+
+    async function sendOrder() {
+        console.log('Send Order: ' + orderType + ' ' + orderMode)
+        console.log('Price: ' + inputPrice)
+        console.log('Quantity: ' + inputQty)
+        var orderSpec = {
+            'orderType': orderType,
+        }
+        if (orderMode === 'limit') {
+            orderSpec['matchType'] = 'limit'
+            orderSpec['postOrder'] = true
+            orderSpec['fillOrder'] = false
+            orderSpec['price'] = Math.floor((new Number(inputPrice)) * marketSummary.prcTokenScale)
+            orderSpec['quantity'] = Math.floor((new Number(inputQty)) * marketSummary.mktTokenScale)
+        } else if (orderMode === 'market_price') {
+            orderSpec['matchType'] = 'market'
+            orderSpec['byQuantity'] = false
+            orderSpec['fillOrder'] = false
+            orderSpec['netPrice'] = Math.floor((new Number(inputPrice)) * marketSummary.prcTokenScale)
+        } else if (orderMode === 'market_quantity') {
+            orderSpec['matchType'] = 'market'
+            orderSpec['byQuantity'] = true
+            orderSpec['fillOrder'] = false
+            orderSpec['quantity'] = Math.floor((new Number(inputQty)) * marketSummary.mktTokenScale)
+        }
+        const txid = await $solana.sendOrder(marketAccounts, orderSpec)
+        console.log(txid)
+        if (txid) {
+            setInputPrice('')
+            setInputQty('')
+        }
+    }
+
     return (
         <div className="relative group w-full mt-4">
             <div className="absolute -inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900 filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
@@ -73,7 +114,7 @@ function Order() {
                             </div>
                             <div className="flex flex-col space-y-2 w-full">
                                 <div>Price<span className="float-right mr-5">{marketSummary.prcTokenSymbol}</span></div>
-                                <input className="bg-[#16181a] w-full h-10 px-4 flex items-center rounded-lg text-slate-400/70 border-solid border-2 border-slate-500"></input>
+                                <input className="bg-[#16181a] w-full h-10 px-4 flex items-center rounded-lg text-slate-400/70 border-solid border-2 border-slate-500" value={inputPrice} onChange={evt => setInputPrice(evt.target.value)}></input>
                             </div>
                         </div>
                     ) : null}
@@ -81,7 +122,7 @@ function Order() {
                         <div className="w-full flex justify-between gap-2">
                             <div className="flex flex-col space-y-2 w-full">
                                 <div>Quantity<span className="float-right mr-5">{marketSummary.mktTokenSymbol}</span></div>
-                                <input className="bg-[#16181a] w-full h-10 px-4 flex items-center rounded-lg text-slate-400/70 border-solid border-2 border-slate-500"></input>
+                                <input className="bg-[#16181a] w-full h-10 px-4 flex items-center rounded-lg text-slate-400/70 border-solid border-2 border-slate-500" value={inputQty} onChange={evt => setInputQty(evt.target.value)}></input>
                             </div>
                             <div className="flex flex-col space-y-2 w-full">
                                 <div>Price<span className="float-right mr-5">{marketSummary.prcTokenSymbol}</span></div>
@@ -93,11 +134,11 @@ function Order() {
                         <div className="w-full flex justify-between gap-2">
                             <div className="flex flex-col space-y-2 w-full">
                                 <div>Quantity<span className="float-right mr-5">{marketSummary.mktTokenSymbol}</span></div>
-                                <input className="bg-[#16181a] w-full h-10 px-4 flex items-center rounded-lg text-slate-400/70 border-solid border-2 border-slate-500"></input>
+                                <input className="bg-[#16181a] w-full h-10 px-4 flex items-center rounded-lg text-slate-400/70 border-solid border-2 border-slate-500" value={inputQty} onChange={evt => setInputQty(evt.target.value)}></input>
                             </div>
                             <div className="flex flex-col space-y-2 w-full">
                                 <div>Price<span className="float-right mr-5">{marketSummary.prcTokenSymbol}</span></div>
-                                <input className="bg-[#16181a] w-full h-10 px-4 flex items-center rounded-lg text-slate-400/70 border-solid border-2 border-slate-500"></input>
+                                <input className="bg-[#16181a] w-full h-10 px-4 flex items-center rounded-lg text-slate-400/70 border-solid border-2 border-slate-500" value={inputPrice} onChange={evt => setInputPrice(evt.target.value)}></input>
                             </div>
                         </div>
                     ) : null}
@@ -105,7 +146,7 @@ function Order() {
                     <div className="flex flex-col space-y-2 items-start w-full justify-start">
                         {" "}
                         <div className="border-sky-800 dark:from-inherit lg:static w-full rounded-xl border px-2 py-1.5 bg-zinc-800/30 mb-2">
-                            <button className="font-mono flex items-center justify-center space-x-4 font-bold w-full">
+                            <button className="font-mono flex items-center justify-center space-x-4 font-bold w-full" onClick={() => sendOrder()}>
                                 <span>Execute Trade</span>
                             </button>
                         </div>

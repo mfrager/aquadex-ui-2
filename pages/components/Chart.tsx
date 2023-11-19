@@ -1,10 +1,17 @@
 import dynamic from 'next/dynamic'
-import { Dropdown } from "@nextui-org/react"
+import { Dropdown } from '@nextui-org/react'
 import React, { useEffect, useState } from 'react'
+import bus from '@/emitter'
+import axios from 'axios'
+
 const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
 function Chart() {
-    const state = {
+    const [marketSummary, setMarketSummary] = useState({})
+    const [loadedChart, setLoadedChart] = useState(false)
+    const [chartView, setChartView] = useState('v1m')
+    const [chartSeries, setChartSeries] = useState([{'data': [], 'name': 'Price'}])
+    const [chartOptions, setChartOptions] = useState({
         options: {
             chart: {
                 type: 'candlestick',
@@ -16,6 +23,9 @@ function Chart() {
             xaxis: {
                 type: 'datetime',
                 range: (60 * 60 * 1000),
+                tooltip: {
+                    enabled: false,
+                },
             },
             yaxis: {
                 tooltip: {
@@ -23,9 +33,7 @@ function Chart() {
                 },
             },
         },
-        series: []
-    }
-    const [chartView, setChartView] = useState('v1m')
+    })
     const chartViewList = [
         {'id': 'v1m', 'name': '1 Min'},
         {'id': 'v3m', 'name': '3 Min'},
@@ -59,6 +67,68 @@ function Chart() {
         'v7d': (1000 * 60 * 60 * 24 * 30 * 6),
         'v30d': (1000 * 60 * 60 * 24 * 30 * 12),
     }
+
+    async function loadChartData(m, v) {
+        console.log('Loading chart data: ' + m + ' ' + v)
+        const sc = marketSummary.prcTokenScale
+        //const baseURL = 'https://' + document.location.host + '/v1/'
+        const baseURL = 'https://aqua-dev1.atellix.net/v1/'
+        const url = baseURL + 'history'
+        const data = await fetch(url, {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'market': m,
+                'view': v,
+            })
+        })
+        var res = await data.json()
+        if (data.status === 200 && res.result === 'ok') {
+            var list = []
+            for (var i = 0; i < res.history.length; i++) {
+                var cur = res.history[i]
+                var item = {
+                    x: Date.parse(cur.x),
+                    y: [
+                        (new Number(cur.y[0])) / sc,
+                        (new Number(cur.y[1])) / sc,
+                        (new Number(cur.y[2])) / sc,
+                        (new Number(cur.y[3])) / sc,
+                    ]
+                }
+                list.push(item)
+            }
+            list.reverse()
+            setChartSeries([{'data': list, 'name': 'Price'}])
+            var options = chartOptions
+            options['options']['xaxis']['range'] = chartViewRange[v]
+            setChartOptions(options)
+        }
+    }
+
+    function selectChart(key) {
+        setChartView(key)
+        setLoadedChart(false)
+        if (marketSummary.marketAddr) {
+            setLoadedChart(true)
+            loadChartData(marketSummary.marketAddr, key).then(() => {})
+        }
+    }
+
+    bus.on('setMarketSummary', (mktSummary) => {
+        if (mktSummary) {
+            setMarketSummary(mktSummary)
+            if (!loadedChart && marketSummary.marketAddr) {
+                setLoadedChart(true)
+                loadChartData(marketSummary.marketAddr, chartView).then(() => {})
+                // TODO: Set refresh
+            }
+        }
+    })
+
     return (
         <div className="relative group w-full mt-4">
             <div className="absolute -inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900 filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
@@ -71,14 +141,14 @@ function Chart() {
                                     <span className="pr-2">{chartViewMap[chartView]}</span>
                                 </Dropdown.Button>
                             </div>
-                            <Dropdown.Menu className="font-mono" color="secondary" onAction={(key) => setChartView(key)}>
+                            <Dropdown.Menu className="font-mono" color="secondary" onAction={(key) => selectChart(key)}>
                                 {chartViewList.map(
                                     ({ id, name }, index) => (<Dropdown.Item key={id}>{name}</Dropdown.Item>)
                                 )}
                             </Dropdown.Menu>
                         </Dropdown>
                     </div>
-                    {typeof window !== 'undefined' ? (<ApexChart options={state.options} series={state.series} type="bar" className="w-full"/>) : null}
+                    {typeof window !== 'undefined' ? (<ApexChart options={chartOptions.options} series={chartSeries} type="candlestick" className="w-full text-black"/>) : null}
                 </div>
             </div>
         </div>

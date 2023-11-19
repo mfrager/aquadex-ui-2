@@ -13,6 +13,7 @@ import Head from "next/head";
 export default function Home() {
     const [marketMap, setMarketMap] = useState({})
     const [marketList, setMarketList] = useState([])
+    const [marketListLoaded, setMarketListLoaded] = useState(false)
     useEffect(() => { 
         async function fetchMarketList() {
             const listData = await fetch('https://aqua-dev1.atellix.net/v1/market_list', {
@@ -31,7 +32,10 @@ export default function Home() {
             setMarketMap(mktMap)
             setMarketList(mktList)
         }
-        fetchMarketList()
+        if (!marketListLoaded) {
+            setMarketListLoaded(true)
+            fetchMarketList()
+        }
     })
     return (
         <>

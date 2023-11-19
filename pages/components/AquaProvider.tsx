@@ -7,7 +7,7 @@ import bs58 from 'bs58'
 import bus from "@/emitter"
 
 const AquaProvider = ({ children }) => {
-    const { publicKey, wallet } = useWallet()
+    const { publicKey, wallet, signTransaction, signAllTransactions } = useWallet()
     const [isConnected, setIsConnected] = useState(false)
     const [currentMarket, setCurrentMarket] = useState(null)
     const [marketReady, setMarketReady] = useState(false)
@@ -310,16 +310,15 @@ const AquaProvider = ({ children }) => {
         console.log('Connected: ' + isConnected)
         if (isConnected) {
             bus.emit('setIsConnected', isConnected, publicKey)
+            console.log(wallet)
             $solana.getProvider({
                 publicKey: publicKey,
-                signTransaction: wallet.signTransaction,
-                signAllTransactions: wallet.signAllTransactions,
+                signTransaction: function (transaction) { return signTransaction(transaction) },
+                signAllTransactions: function (transactions) { return signAllTransactions(transactions) }
             })
             //console.log($solana.program)
         }
     }, [isConnected])
-
-    
 
     bus.on('setMarketSelected', (market) => {
         if (market) {
