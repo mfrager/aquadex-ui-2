@@ -54,7 +54,7 @@ const AquaProvider = ({ children }) => {
             item['taker'] = item['taker'].toString()
             var lastTs = new Date(item['ts'] * 1000)
             var lastDt = DateTime.fromJSDate(lastTs)
-            item['ts'] = lastDt.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS)
+            item['ts'] = lastDt.toLocaleString(DateTime.DATETIME_SHORT)
             list.push(item)
         }
         setTradeList(list)
