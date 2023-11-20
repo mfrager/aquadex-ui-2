@@ -1,8 +1,8 @@
 import { Square3Stack3DIcon } from "@heroicons/react/24/solid"
 import React, { useEffect, useState } from 'react'
 import ReactPaginate from 'react-paginate'
+import { useListener } from 'react-bus'
 import { DateTime } from 'luxon'
-import bus from "@/emitter"
 
 function shorten_pubkey(pubkey) {
     return pubkey.substring(0, 4) + ' ' + pubkey.substring(pubkey.length - 4, pubkey.length)
@@ -13,13 +13,14 @@ function Trades() {
     const [totalPages, setTotalPages] = useState(1)
     const [currentPage, setCurrentPage] = useState(1)
     const [loadedTrades, setLoadedTrades] = useState(false)
+    const [lastTx, setLastTx] = useState('')
     const [userTrades, setUserTrades] = useState([])
     const [marketSummary, setMarketSummary] = useState({
         'mktTokenSymbol': '',
         'prcTokenSymbol': '',
     })
     const [tradeData, setTradeData] = useState([])
-    bus.on('setTradeList', (trades) => {
+    useListener('setTradeList', (trades) => {
         if (trades) {
             var tradeList = []
             for (var i = 0; i < trades.length; i++) {
@@ -38,7 +39,7 @@ function Trades() {
         }
     })
 
-    async function loadLastTx(market, user) {
+    async function loadLastTx(mktSummary) {
         const baseURL = 'https://aqua-dev1.atellix.net/v1/'
         const url = baseURL + 'last_tx'
         const data = await fetch(url, {
@@ -48,8 +49,8 @@ function Trades() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                'market': market,
-                'user': user,
+                'market': mktSummary.marketAddr,
+                'user': mktSummary.userWallet,
             }),
         })
         var res = await data.json()
@@ -134,13 +135,27 @@ function Trades() {
         }
     }
 
-    bus.on('setMarketSummary', (mktSummary) => {
+    useListener('setMarketSummary', (mktSummary) => {
         if (mktSummary) {
             setMarketSummary(mktSummary)
             if (!loadedTrades && mktSummary.marketAddr) {
                 setLoadedTrades(true)
                 loadTradeHistory(mktSummary, currentPage).then(() => {})
+                loadLastTx(mktSummary).then((data) => {
+                    setLastTx(data)
+                })
             }
+        }
+    })
+
+    useListener('refresh', (data) => {
+        if (marketSummary.marketAddr) {
+            loadLastTx(marketSummary).then((nextTx) => {
+                if (lastTx !== nextTx) {
+                    setLastTx(nextTx)
+                    loadTradeHistory(marketSummary, currentPage).then(() => {})
+                }
+            })
         }
     })
 

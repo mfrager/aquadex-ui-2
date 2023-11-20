@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Square3Stack3DIcon } from "@heroicons/react/24/solid"
-import bus from "@/emitter"
+import { useListener } from 'react-bus'
 function Book() {
     // data
     const [bidData, setBidData] = useState([])
@@ -35,12 +35,12 @@ function Book() {
             price: "0.7000",
         },
     ]*/
-    bus.on('setMarketSummary', (mktSummary) => {
+    useListener('setMarketSummary', (mktSummary) => {
         if (mktSummary) {
             setMarketSummary(mktSummary)
         }
     })
-    bus.on('setOrderbookData', (orderbookData) => {
+    useListener('setOrderbookData', (orderbookData) => {
         if (orderbookData && 'bids' in orderbookData && 'asks' in orderbookData) {
             var bids = []
             orderbookData.bids.forEach((item) => {

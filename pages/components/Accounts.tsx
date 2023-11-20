@@ -4,11 +4,11 @@ import {
     ArrowTrendingUpIcon,
     ArrowTrendingDownIcon,
 } from "@heroicons/react/24/solid"
-import bus from "@/emitter"
+import { useListener } from 'react-bus'
 function Accounts() {
     // data
     const [data, setData] = useState([])
-    bus.on('setTokenList', (tknList) => {
+    useListener('setTokenList', (tknList) => {
         if (tknList.length > 0) {
             const mktToken = tknList[0]
             const prcToken = tknList[1]

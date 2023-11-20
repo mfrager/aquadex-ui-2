@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import { useInterval } from 'react-interval-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
 import { DateTime } from 'luxon'
+import { useBus, useListener } from 'react-bus'
 import $solana from "@/atellix/solana-client"
 import bs58 from 'bs58'
-import bus from "@/emitter"
 
 const AquaProvider = ({ children }) => {
     const { publicKey, wallet, signTransaction, signAllTransactions } = useWallet()
@@ -21,6 +22,19 @@ const AquaProvider = ({ children }) => {
         { abbr: '', amount: '', name: '', symbol: '', create: false },
         { abbr: '', amount: '', name: '', symbol: '', create: false },
     ])
+    const { start, isActive } = useInterval(
+        () => {
+            console.log('Refresh...')
+            bus.emit('refresh', true)
+        },
+        60000,
+        {
+            autoStart: false,
+            immediate: false,
+            selfCorrecting: false,
+        }
+    )
+    const bus = useBus()
     var logUpdates = {}
     var tradeUpdates = false
 
@@ -196,8 +210,7 @@ const AquaProvider = ({ children }) => {
     }
 
     async function setupAquaDEX(marketPK, walletPK) {
-        //console.log('setupAquaDEX')
-        //console.log(marketPK.toString())
+        console.log('Setup AquaDEX - Market: ' + marketPK.toString() + ' - Wallet: ' + walletPK.toString())
         const marketData = await $solana.getAccountData('aqua-dex', 'market', marketPK)
         //console.log(marketData)
         const marketStateData = await $solana.getAccountData('aqua-dex', 'marketState', marketData.state)
@@ -247,13 +260,11 @@ const AquaProvider = ({ children }) => {
 
     async function startAquaDEX() {
         try {
-            const result = await Promise.all([connectWallet, connectMarket])
-            //console.log('Wallet: ' + result[0].toString())
-            const marketAddr = result[1].address
+            const marketAddr = currentMarket.address
             const marketKeyData = bs58.decode(marketAddr)
             if (marketKeyData.length === 32) {
                 const marketPK = new PublicKey(marketAddr)
-                await setupAquaDEX(marketPK, result[0])
+                await setupAquaDEX(marketPK, publicKey)
                 setMarketReady(true)
             }
         } catch(error) {
@@ -285,22 +296,14 @@ const AquaProvider = ({ children }) => {
         bus.emit('setTokenList', tokenList)
     }, [tokenList])
 
-    const connectWallet = new Promise((resolve, reject) => {
-        bus.on('setIsConnected', (connected, pkey) => {
-            if (connected) {
-                resolve(pkey)
-            }
-        })
+    useListener('setMarketSelected', (market) => {
+        console.log('Select Market')
+        console.log(market)
+        if (market) {
+            setCurrentMarket(market)
+            setIsConnected(isConnected)
+        }
     })
-    const connectMarket = new Promise((resolve, reject) => {
-        bus.on('setMarketSelected', (market) => {
-            if (market) {
-                resolve(market)
-            }
-        })
-    })
-
-    startAquaDEX().then(() => {})
 
     useEffect(() => {
         setIsConnected(publicKey !== null)
@@ -308,38 +311,22 @@ const AquaProvider = ({ children }) => {
 
     useEffect(() => {
         console.log('Connected: ' + isConnected)
-        if (isConnected) {
-            bus.emit('setIsConnected', isConnected, publicKey)
-            console.log(wallet)
+        if (isConnected && currentMarket) {
+            bus.emit('setIsConnected', {'connected': isConnected, 'publicKey': publicKey})
+            //console.log(wallet)
             $solana.getProvider({
                 publicKey: publicKey,
                 signTransaction: function (transaction) { return signTransaction(transaction) },
                 signAllTransactions: function (transactions) { return signAllTransactions(transactions) }
             })
             //console.log($solana.program)
+            if (!isActive()) {
+                start()
+                startAquaDEX().then(() => {})
+            }
         }
     }, [isConnected])
 
-    bus.on('setMarketSelected', (market) => {
-        if (market) {
-            setCurrentMarket(market)
-            if (marketReady && publicKey !== null) {
-                console.log('Reload Market')
-                //console.log(market)
-                const marketAddr = market.address
-                const marketKeyData = bs58.decode(marketAddr)
-                if (marketKeyData.length === 32) {
-                    const marketPK = new PublicKey(marketAddr)
-                    setMarketReady(false)
-                    setupAquaDEX(marketPK, publicKey).then(() => {
-                        setMarketReady(true)
-                    }).catch((error) => {
-                        console.log(error)
-                    })
-                }
-            }
-        }
-    })
 
     return <>{children}</>
 }

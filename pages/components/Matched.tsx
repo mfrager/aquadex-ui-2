@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { RectangleGroupIcon } from "@heroicons/react/24/solid"
-import bus from "@/emitter"
+import { useListener } from 'react-bus'
 import $solana from "@/atellix/solana-client"
 
 function Matched() {
@@ -10,17 +10,17 @@ function Matched() {
     const [marketHasOrders, setMarketHasOrders] = useState(false)
     const [marketSummary, setMarketSummary] = useState({})
     const [marketAccounts, setMarketAccounts] = useState({})
-    bus.on('setMarketSummary', (mktSummary) => {
+    useListener('setMarketSummary', (mktSummary) => {
         if (mktSummary) {
             setMarketSummary(mktSummary)
         }
     })
-    bus.on('setMarketAccounts', (mktAccounts) => {
+    useListener('setMarketAccounts', (mktAccounts) => {
         if (mktAccounts) {
             setMarketAccounts(mktAccounts)
         }
     })
-    bus.on('setSettleList', (settleData) => {
+    useListener('setSettleList', (settleData) => {
         if (settleData) {
             setSettleList(settleData)
         }
@@ -64,7 +64,7 @@ function Matched() {
             'prcTokens': '',
         })
     })
-    bus.on('setOrderbookData', (orderbookData) => {
+    useListener('setOrderbookData', (orderbookData) => {
         //console.log(marketSummary)
         if (marketSummary.userWallet && marketSummary.marketMeta && orderbookData && 'bids' in orderbookData && 'asks' in orderbookData) {
             var orderMap = {}

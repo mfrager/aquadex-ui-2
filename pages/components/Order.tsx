@@ -1,6 +1,6 @@
 import { Checkbox, Dropdown, Input, Progress } from "@nextui-org/react"
 import React, { useEffect, useState } from 'react'
-import bus from "@/emitter"
+import { useListener } from 'react-bus'
 import $solana from "@/atellix/solana-client"
 
 function Order() {
@@ -13,12 +13,12 @@ function Order() {
         'mktTokenSymbol': '',
         'prcTokenSymbol': '',
     })
-    bus.on('setMarketSummary', (mktSummary) => {
+    useListener('setMarketSummary', (mktSummary) => {
         if (mktSummary) {
             setMarketSummary(mktSummary)
         }
     })
-    bus.on('setMarketAccounts', (mktAccounts) => {
+    useListener('setMarketAccounts', (mktAccounts) => {
         if (mktAccounts) {
             setMarketAccounts(mktAccounts)
         }

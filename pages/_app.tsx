@@ -22,6 +22,7 @@ import {
     TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 
+import { Provider as BusProvider } from 'react-bus'
 import AquaProvider from "./components/AquaProvider";
 
 const theme = createTheme({
@@ -49,15 +50,17 @@ export default function App({ Component, pageProps }: AppProps) {
     );
     return (
         <NextUIProvider theme={theme}>
-            <ConnectionProvider endpoint={endpoint}>
-                <WalletProvider wallets={wallets} autoConnect={true}>
-                    <WalletModalProvider>
-                        <AquaProvider>
-                            <Component {...pageProps} />
-                        </AquaProvider>
-                    </WalletModalProvider>
-                </WalletProvider>
-            </ConnectionProvider>
+            <BusProvider>
+                <ConnectionProvider endpoint={endpoint}>
+                    <WalletProvider wallets={wallets} autoConnect={true}>
+                        <WalletModalProvider>
+                            <AquaProvider>
+                                <Component {...pageProps} />
+                            </AquaProvider>
+                        </WalletModalProvider>
+                    </WalletProvider>
+                </ConnectionProvider>
+            </BusProvider>
         </NextUIProvider>
     );
 }

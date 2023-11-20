@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic'
 import { Dropdown } from '@nextui-org/react'
 import React, { useEffect, useState } from 'react'
-import bus from '@/emitter'
+import { useListener } from 'react-bus'
 import axios from 'axios'
 
 const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false })
@@ -118,7 +118,13 @@ function Chart() {
         }
     }
 
-    bus.on('setMarketSummary', (mktSummary) => {
+    useListener('refresh', (data) => {
+        if (marketSummary.marketAddr) {
+            loadChartData(marketSummary.marketAddr, chartView).then(() => {})
+        }
+    })
+
+    useListener('setMarketSummary', (mktSummary) => {
         if (mktSummary) {
             setMarketSummary(mktSummary)
             if (!loadedChart && marketSummary.marketAddr) {
