@@ -5,7 +5,7 @@ import { useListener } from 'react-bus'
 import { DateTime } from 'luxon'
 
 function shorten_pubkey(pubkey) {
-    return pubkey.substring(0, 4) + ' ' + pubkey.substring(pubkey.length - 4, pubkey.length)
+    return pubkey.substring(0, 4) + '...' + pubkey.substring(pubkey.length - 4, pubkey.length)
 }
 
 function Trades() {
@@ -160,68 +160,70 @@ function Trades() {
     })
 
     return (
-        <div className="relative group w-full mt-4">
+        <div className="relative group w-full mt-3">
             <div className="absolute -inset-1 bg-gradient-to-r from-fuchsia-900 via-sky-600 to-violet-900 filter blur-md opacity-60 group-hover:opacity-90 transition duration-500"></div>
             <div className="relative leading-none rounded-3xl flex items-center custom-border-1">
                 <div className="flex items-start justify-center md:space-y-0 flex-col w-full hover:border-neutral-900 border-neutral-800/50 from-inherit lg:static rounded-3xl border bg-zinc-800/30 h-fit font-mono text-xs">
-                    <Square3Stack3DIcon className="w-8 h-8 aboslute -rotate-12 left-2 -mt-3 -mb-2 text-[#750168]"/>
+                    <Square3Stack3DIcon className="w-8 h-8 aboslute -rotate-12 left-3 -mt-3 -mb-3 text-[#750168]"/>
                     {showPanel === 'all' ? (
-                        <div className="w-full flex items-center gap-2 justify-between pl-3 pr-3">
-                            <div className="border-sky-800 dark:from-inherit lg:static rounded-xl border px-2 py-1.5 bg-sky-900/70 w-full">
-                                <button className="font-mono flex items-center justify-center space-x-4 font-bold w-full">
+                        <div className="w-full flex items-center gap-3 justify-between pl-3 pr-3">
+                            <div className="border-sky-800 dark:from-inherit lg:static rounded-xl border px-3 py-1.5 bg-sky-900/70 w-full">
+                                <button className="font-mono flex items-center justify-center space-x-3 font-bold w-full">
                                     <span>All Trades</span>
                                 </button>
                             </div>
-                            <div className="border-sky-800 dark:from-inherit lg:static w-full rounded-xl border px-2 py-1.5 bg-sky-900/20">
-                                <button className="font-mono flex items-center justify-center space-x-4 font-bold w-full" onClick={() => setShowPanel('user')}>
+                            <div className="border-sky-800 dark:from-inherit lg:static w-full rounded-xl border px-3 py-1.5 bg-sky-900/20">
+                                <button className="font-mono flex items-center justify-center space-x-3 font-bold w-full" onClick={() => setShowPanel('user')}>
                                     <span>My Trades</span>
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <div className="w-full flex items-center gap-2 justify-between pl-3 pr-3">
-                            <div className="border-sky-800 dark:from-inherit lg:static rounded-xl border px-2 py-1.5 bg-skiy-900/20 w-full">
-                                <button className="font-mono flex items-center justify-center space-x-4 font-bold w-full" onClick={() => setShowPanel('all')}>
+                        <div className="w-full flex items-center gap-3 justify-between pl-3 pr-3">
+                            <div className="border-sky-800 dark:from-inherit lg:static rounded-xl border px-3 py-1.5 bg-skiy-900/20 w-full">
+                                <button className="font-mono flex items-center justify-center space-x-3 font-bold w-full" onClick={() => setShowPanel('all')}>
                                     <span>All Trades</span>
                                 </button>
                             </div>
-                            <div className="border-sky-800 dark:from-inherit lg:static w-full rounded-xl border px-2 py-1.5 bg-sky-900/70">
-                                <button className="font-mono flex items-center justify-center space-x-4 font-bold w-full">
+                            <div className="border-sky-800 dark:from-inherit lg:static w-full rounded-xl border px-3 py-1.5 bg-sky-900/70">
+                                <button className="font-mono flex items-center justify-center space-x-3 font-bold w-full">
                                     <span>My Trades</span>
                                 </button>
                             </div>
                         </div>
                     )}
                     {showPanel === 'all' ? (
-                        <table className="table-auto border-separate border-spacing-y-1.5 w-full p-5">
-                            <thead>
-                                <tr>
-                                    <th>Order</th>
-                                    <th>Taker</th>
-                                    <th>Maker</th>
-                                    <th>Timestamp</th>
-                                    <th>Quantity</th>
-                                    <th className="text-right">Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tradeData.map(
-                                    ({ order, taker, maker, timestamp, quantity, price }, index) => (
-                                        <tr key={index}>
-                                            <td className="text-center">{order}</td>
-                                            <td className="text-center">{taker}</td>
-                                            <td className="text-center">{maker}</td>
-                                            <td className="text-center">{timestamp}</td>
-                                            <td className="text-center">{quantity}</td>
-                                            <td className="text-right">{price}</td>
-                                        </tr>
-                                    )
-                                )}
-                            </tbody>
-                        </table>
+                        <div className="w-full overflow-x-auto">
+                            <table className="table-auto border-separate border-spacing-y-1.5 w-full min-w-max p-5">
+                                <thead>
+                                    <tr>
+                                        <th>Order</th>
+                                        <th>Taker</th>
+                                        <th>Maker</th>
+                                        <th>Timestamp</th>
+                                        <th>Quantity</th>
+                                        <th className="text-right">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {tradeData.map(
+                                        ({ order, taker, maker, timestamp, quantity, price }, index) => (
+                                            <tr key={index}>
+                                                <td className="pr-3 text-center">{order}</td>
+                                                <td className="pl-3 pr-3 text-center">{taker}</td>
+                                                <td className="pl-3 pr-3 text-center">{maker}</td>
+                                                <td className="pl-3 pr-3 text-center">{timestamp}</td>
+                                                <td className="pl-3 pr-3 text-center">{quantity}</td>
+                                                <td className="pl-3 text-right">{price}</td>
+                                            </tr>
+                                        )
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     ) : (
-                        <div className="w-full">
-                            <table className="table-auto border-separate border-spacing-y-1.5 w-full p-5 pb-0">
+                        <div className="w-full overflow-x-auto">
+                            <table className="table-auto border-separate border-spacing-y-1.5 w-full min-w-max p-5 pb-0">
                                 <thead>
                                     <tr>
                                         <th className="text-left">Timestamp</th>
@@ -238,14 +240,14 @@ function Trades() {
                                     {userTrades.map(
                                         ({ ts, side, net_price, price, quantity, fee, rebate, link }, index) => (
                                             <tr key={index}>
-                                                <td className="text-left">{ts}</td>
-                                                <td className="text-center">{side}</td>
-                                                <td className="text-center">{price}</td>
-                                                <td className="text-center">{quantity}</td>
-                                                <td className="text-center">{net_price}</td>
-                                                <td className="text-center">{fee}</td>
-                                                <td className="text-center">{rebate}</td>
-                                                <td className="text-center"><a href={link} target="_blank">TX</a></td>
+                                                <td className="pr-3 text-left">{ts}</td>
+                                                <td className="pl-3 pr-3 text-center">{side}</td>
+                                                <td className="pl-3 pr-3 text-center">{price}</td>
+                                                <td className="pl-3 pr-3 text-center">{quantity}</td>
+                                                <td className="pl-3 pr-3 text-center">{net_price}</td>
+                                                <td className="pl-3 pr-3 text-center">{fee}</td>
+                                                <td className="pl-3 pr-3 text-center">{rebate}</td>
+                                                <td className="pl-3 text-center"><a href={link} target="_blank">TX</a></td>
                                             </tr>
                                         )
                                     )}

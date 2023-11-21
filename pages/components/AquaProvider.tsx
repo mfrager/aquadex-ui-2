@@ -22,6 +22,10 @@ const AquaProvider = ({ children }) => {
         { abbr: '', amount: '', name: '', symbol: '', create: false },
         { abbr: '', amount: '', name: '', symbol: '', create: false },
     ])
+    const [marketMap, setMarketMap] = useState({})
+    const [marketList, setMarketList] = useState([])
+    const [marketListLoaded, setMarketListLoaded] = useState(false)
+
     const { start, isActive } = useInterval(
         () => {
             console.log('Refresh...')
@@ -158,8 +162,16 @@ const AquaProvider = ({ children }) => {
                 updateBalance(marketData.mktMint, walletPK, mktScale, mktDecimals, 0),
                 updateBalance(marketData.prcMint, walletPK, prcScale, prcDecimals, 1),
                 settlementEntries(marketData.settle0, walletPK, marketSpec.marketAddr),
+                $solana.associatedTokenAddress(walletPK, marketData.mktMint),
+                $solana.associatedTokenAddress(walletPK, marketData.prcMint)
             ]).then((results) => {
                 setTokenList(tkl)
+                $solana.provider.connection.onAccountChange(new PublicKey(results[3].pubkey), async (accountInfo, context) => {
+                    await updateBalance(marketData.mktMint, walletPK, mktScale, mktDecimals, 0)
+                })
+                $solana.provider.connection.onAccountChange(new PublicKey(results[4].pubkey), async (accountInfo, context) => {
+                    await updateBalance(marketData.prcMint, walletPK, prcScale, prcDecimals, 1)
+                })
                 var logAccounts = results[2]
                 for (var i = 0; i < logAccounts.length; i++) {
                     var k = logAccounts[i].toString()
@@ -211,6 +223,11 @@ const AquaProvider = ({ children }) => {
 
     async function setupAquaDEX(marketPK, walletPK) {
         console.log('Setup AquaDEX - Market: ' + marketPK.toString() + ' - Wallet: ' + walletPK.toString())
+        $solana.getProvider({
+            publicKey: walletPK,
+            signTransaction: function (transaction) { return signTransaction(transaction) },
+            signAllTransactions: function (transactions) { return signAllTransactions(transactions) }
+        })
         const marketData = await $solana.getAccountData('aqua-dex', 'market', marketPK)
         //console.log(marketData)
         const marketStateData = await $solana.getAccountData('aqua-dex', 'marketState', marketData.state)
@@ -259,18 +276,55 @@ const AquaProvider = ({ children }) => {
     }
 
     async function startAquaDEX() {
-        try {
+        if (!marketReady) {
+            setMarketReady(true)
             const marketAddr = currentMarket.address
             const marketKeyData = bs58.decode(marketAddr)
             if (marketKeyData.length === 32) {
                 const marketPK = new PublicKey(marketAddr)
                 await setupAquaDEX(marketPK, publicKey)
-                setMarketReady(true)
             }
-        } catch(error) {
-            console.log(error)
         }
     } 
+
+    useEffect(() => {
+        async function fetchMarketList() {
+            const listData = await fetch('https://aqua-dev1.atellix.net/v1/market_list', {
+                method: "post",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            var mktList = await listData.json()
+            var mktMap = {}
+            mktList.map((item) => {
+                mktMap[item.address] = item
+            })
+            setMarketMap(mktMap)
+            setMarketList(mktList)
+            setCurrentMarket(mktList[0])
+        }
+        if (!marketListLoaded) {
+            setMarketListLoaded(true)
+            fetchMarketList().then(() => {})
+        }
+    })
+
+    useEffect(() => {
+        if (isConnected && currentMarket) {
+            startAquaDEX().then(() => {})
+        }
+    }, [isConnected, currentMarket])
+
+    useEffect(() => {
+        bus.emit('setMarketList', marketList)
+    }, [marketList])
+
+    useEffect(() => {
+        bus.emit('setMarketMap', marketMap)
+    }, [marketMap])
 
     useEffect(() => {
         bus.emit('setMarketAccounts', marketAccounts)
@@ -296,37 +350,19 @@ const AquaProvider = ({ children }) => {
         bus.emit('setTokenList', tokenList)
     }, [tokenList])
 
-    useListener('setMarketSelected', (market) => {
-        console.log('Select Market')
-        console.log(market)
-        if (market) {
-            setCurrentMarket(market)
-            setIsConnected(isConnected)
-        }
-    })
-
     useEffect(() => {
         setIsConnected(publicKey !== null)
     }, [publicKey])
 
     useEffect(() => {
         console.log('Connected: ' + isConnected)
-        if (isConnected && currentMarket) {
+        if (isConnected) {
             bus.emit('setIsConnected', {'connected': isConnected, 'publicKey': publicKey})
-            //console.log(wallet)
-            $solana.getProvider({
-                publicKey: publicKey,
-                signTransaction: function (transaction) { return signTransaction(transaction) },
-                signAllTransactions: function (transactions) { return signAllTransactions(transactions) }
-            })
-            //console.log($solana.program)
             if (!isActive()) {
                 start()
-                startAquaDEX().then(() => {})
             }
         }
     }, [isConnected])
-
 
     return <>{children}</>
 }

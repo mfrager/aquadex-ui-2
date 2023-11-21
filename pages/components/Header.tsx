@@ -2,12 +2,22 @@ import React, { useEffect, useState } from "react";
 import { Dropdown } from "@nextui-org/react";
 import LoginButton from "./LogInButton";
 import { ClockIcon, BanknotesIcon } from "@heroicons/react/24/outline";
-import { useBus } from 'react-bus'
+import { useBus, useListener } from 'react-bus'
 
-function Header({marketList, marketMap}) {
-    const [marketSelected, setMarketSelected] = useState(null)
+function Header() {
+    const [marketMap, setMarketMap] = useState({})
+    const [marketList, setMarketList] = useState([])
     const [marketName, setMarketName] = useState('')
+    const [marketSelected, setMarketSelected] = useState(null)
     const bus = useBus()
+
+    useListener('setMarketList', (data) => {
+        setMarketList(data)
+    })
+
+    useListener('setMarketMap', (data) => {
+        setMarketMap(data)
+    })
 
     useEffect(() => {
         if (marketList.length > 0 && !marketName) {

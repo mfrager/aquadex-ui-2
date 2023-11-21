@@ -11,38 +11,13 @@ import Footer from "./components/Footer";
 import Head from "next/head";
 
 export default function Home() {
-    const [marketMap, setMarketMap] = useState({})
-    const [marketList, setMarketList] = useState([])
-    const [marketListLoaded, setMarketListLoaded] = useState(false)
-    useEffect(() => { 
-        async function fetchMarketList() {
-            const listData = await fetch('https://aqua-dev1.atellix.net/v1/market_list', {
-                method: "post",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            })
-            var mktList = await listData.json()
-            var mktMap = {}
-            mktList.map((item) => {
-                mktMap[item.address] = item
-            })
-            setMarketMap(mktMap)
-            setMarketList(mktList)
-        }
-        if (!marketListLoaded) {
-            setMarketListLoaded(true)
-            fetchMarketList()
-        }
-    })
     return (
         <>
             <Head>
                 {" "}
                 <link rel="icon" href="/a.png" />
                 <title>AquaDEX</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
                 <meta name="title" content="AquaDEX" />
                 <meta name="description" content="The best decentralized exchange" />
                 <meta property="og:type" content="website" />
@@ -70,7 +45,7 @@ export default function Home() {
             </Head>
             <main className="bg-black">
                 <div className="flex min-h-screen gap-4 flex-col max-w-[1600px] mx-auto    items-center px-2 md:px-4">
-                    <Header marketList={marketList} marketMap={marketMap}/>
+                    <Header/>
                     <div className="flex flex-wrap w-full gap-6 justify-center">
                         <div className="flex flex-col w-full xl:max-w-[66%]">
                             <Chart />
