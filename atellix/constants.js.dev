@@ -1,2 +1,4 @@
 export const AQUADEX_URL = 'https://aqua-dev1.atellix.net/'
 export const AQUADEX_PRODUCTION = false
+export const SOLANA_API_URL = 'https://api.devnet.solana.com'
+

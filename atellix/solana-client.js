@@ -9,12 +9,10 @@ import { Buffer } from 'buffer'
 import lo from 'buffer-layout'
 import base32 from 'base32.js'
 import bs58 from 'bs58'
-
-//const SOLANA_API_URL = 'https://withered-withered-bridge.solana-mainnet.discover.quiknode.pro/15496b6eaef4b2d99c35cd91f260047219b399f6/'
-const SOLANA_API_URL = 'https://api.devnet.solana.com'
+import { SOLANA_API_URL, AQUADEX_PRODUCTION } from '@/atellix/constants'
 
 const ANCHOR_IDL = {
-    'aqua-dex': require('@/atellix/idl/aqua_dex.json'),
+    'aqua-dex': require(AQUADEX_PRODUCTION ? '@/atellix/idl/aqua_dex_prod.json' : '@/atellix/idl/aqua_dex_dev.json'),
 }
 
 export default {
