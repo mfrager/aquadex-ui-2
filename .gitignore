@@ -36,3 +36,4 @@ next-env.d.ts
 
 # HTTPS certs for dev
 /certs
+/atellix/constants.js

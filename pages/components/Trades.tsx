@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import ReactPaginate from 'react-paginate'
 import { useListener } from 'react-bus'
 import { DateTime } from 'luxon'
+import * as config from '@/atellix/constants'
 
 function shorten_pubkey(pubkey) {
     return pubkey.substring(0, 4) + '...' + pubkey.substring(pubkey.length - 4, pubkey.length)
@@ -40,8 +41,7 @@ function Trades() {
     })
 
     async function loadLastTx(mktSummary) {
-        const baseURL = 'https://aqua-dev1.atellix.net/v1/'
-        const url = baseURL + 'last_tx'
+        const url = config.AQUADEX_URL + 'v1/last_tx'
         const data = await fetch(url, {
             method: 'post',
             headers: {
@@ -61,9 +61,8 @@ function Trades() {
     }
 
     async function loadTradeHistory(mktSummary, page) {
-        const baseURL = 'https://aqua-dev1.atellix.net/v1/'
-        const production = false
-        const url = baseURL + 'trades'
+        const production = config.AQUADEX_PRODUCTION
+        const url = config.AQUADEX_URL + 'v1/trades'
         const data = await fetch(url, {
             method: 'post',
             headers: {

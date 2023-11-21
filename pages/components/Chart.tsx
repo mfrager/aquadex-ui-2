@@ -3,6 +3,7 @@ import { Dropdown } from '@nextui-org/react'
 import React, { useEffect, useState } from 'react'
 import { useListener } from 'react-bus'
 import axios from 'axios'
+import * as config from '@/atellix/constants'
 
 const ApexChart = dynamic(() => import('react-apexcharts'), { ssr: false })
 
@@ -72,8 +73,7 @@ function Chart() {
         console.log('Loading chart data: ' + m + ' ' + v)
         const sc = marketSummary.prcTokenScale
         //const baseURL = 'https://' + document.location.host + '/v1/'
-        const baseURL = 'https://aqua-dev1.atellix.net/v1/'
-        const url = baseURL + 'history'
+        const url = config.AQUADEX_URL + 'v1/history'
         const data = await fetch(url, {
             method: 'post',
             headers: {

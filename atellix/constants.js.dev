@@ -1,0 +1,2 @@
+export const AQUADEX_URL = 'https://aqua-dev1.atellix.net/'
+export const AQUADEX_PRODUCTION = false

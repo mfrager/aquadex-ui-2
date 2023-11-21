@@ -5,6 +5,7 @@ import { PublicKey } from '@solana/web3.js'
 import { DateTime } from 'luxon'
 import { useBus, useListener } from 'react-bus'
 import $solana from "@/atellix/solana-client"
+import * as config from '@/atellix/constants'
 import bs58 from 'bs58'
 
 const AquaProvider = ({ children }) => {
@@ -46,7 +47,7 @@ const AquaProvider = ({ children }) => {
     $solana.loadProgram('aqua-dex')
 
     async function getMarketMetadata(marketPK) {
-        const url = 'https://aqua-dev1.atellix.net/v1/market_info'
+        const url = config.AQUADEX_URL + 'v1/market_info'
         const res = await fetch(url, {
             method: 'post',
             headers: {
@@ -289,7 +290,8 @@ const AquaProvider = ({ children }) => {
 
     useEffect(() => {
         async function fetchMarketList() {
-            const listData = await fetch('https://aqua-dev1.atellix.net/v1/market_list', {
+            const url = config.AQUADEX_URL + 'v1/market_list'
+            const listData = await fetch(url, {
                 method: "post",
                 headers: {
                     'Accept': 'application/json',

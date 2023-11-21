@@ -1,0 +1,2 @@
+export const AQUADEX_URL = 'https://aquadex.com/'
+export const AQUADEX_PRODUCTION = true
