@@ -9,10 +9,14 @@ import { Buffer } from 'buffer'
 import lo from 'buffer-layout'
 import base32 from 'base32.js'
 import bs58 from 'bs58'
-import { SOLANA_API_URL, AQUADEX_PRODUCTION } from '@/atellix/constants'
+
+const PRODUCTION = true
+const SOLANA_API_URL = 'https://withered-withered-bridge.solana-mainnet.discover.quiknode.pro/15496b6eaef4b2d99c35cd91f260047219b399f6/'
+//const PRODUCTION = false
+//const SOLANA_API_URL = 'https://api.devnet.solana.com'
 
 const ANCHOR_IDL = {
-    'aqua-dex': require(AQUADEX_PRODUCTION ? '@/atellix/idl/aqua_dex_prod.json' : '@/atellix/idl/aqua_dex_dev.json'),
+    'aqua-dex': require(PRODUCTION ? '@/atellix/idl/aqua_dex_prod.json' : '@/atellix/idl/aqua_dex_dev.json'),
 }
 
 export default {
@@ -119,10 +123,17 @@ export default {
     async hasTokenAccount(mintPK, walletPK) {
         let tokenInfo = await this.associatedTokenAddress(walletPK, mintPK)
         let tokenPK = new PublicKey(tokenInfo.pubkey)
+        //console.log('Wallet: ' + walletPK.toString())
+        //console.log('Mint: ' + mintPK.toString())
+        //console.log('Token Account: ' + tokenPK.toString())
         try {
             await getAccount(this.provider.connection, tokenPK)
         } catch (error) {
-            return false
+            if (error instanceof TokenAccountNotFoundError) {
+                return false
+            } else {
+                console.error(error)
+            }
         }
         return true
     },
@@ -616,6 +627,10 @@ export default {
         var tx = new Transaction()
         tx.add(ComputeBudgetProgram.setComputeUnitLimit({units: 1000000}))
         if (orderSpec['orderType'] === 'bid') {
+            if (!await this.hasTokenAccount(marketAccounts.mktMint, marketAccounts.user)) {
+                const tokenInfo = await this.associatedTokenAddress(marketAccounts.user, marketAccounts.mktMint)
+                tx.add(createAssociatedTokenAccountInstruction(marketAccounts.user, new PublicKey(tokenInfo.pubkey), marketAccounts.user, marketAccounts.mktMint))
+            }
             if (orderSpec['matchType'] === 'limit') {
                 tx.add(this.program['aqua-dex'].instruction.limitBid(
                     new BN(orderSpec['quantity']),

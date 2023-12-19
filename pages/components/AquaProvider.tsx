@@ -26,6 +26,7 @@ const AquaProvider = ({ children }) => {
     const [marketMap, setMarketMap] = useState({})
     const [marketList, setMarketList] = useState([])
     const [marketListLoaded, setMarketListLoaded] = useState(false)
+    const bus = useBus()
 
     const { start, isActive } = useInterval(
         () => {
@@ -39,7 +40,6 @@ const AquaProvider = ({ children }) => {
             selfCorrecting: false,
         }
     )
-    const bus = useBus()
     var logUpdates = {}
     var tradeUpdates = false
 
@@ -164,13 +164,15 @@ const AquaProvider = ({ children }) => {
                 updateBalance(marketData.prcMint, walletPK, prcScale, prcDecimals, 1),
                 settlementEntries(marketData.settle0, walletPK, marketSpec.marketAddr),
                 $solana.associatedTokenAddress(walletPK, marketData.mktMint),
-                $solana.associatedTokenAddress(walletPK, marketData.prcMint)
+                $solana.associatedTokenAddress(walletPK, marketData.prcMint),
             ]).then((results) => {
                 setTokenList(tkl)
                 $solana.provider.connection.onAccountChange(new PublicKey(results[3].pubkey), async (accountInfo, context) => {
                     await updateBalance(marketData.mktMint, walletPK, mktScale, mktDecimals, 0)
+                    await updateBalance(marketData.prcMint, walletPK, prcScale, prcDecimals, 1)
                 })
                 $solana.provider.connection.onAccountChange(new PublicKey(results[4].pubkey), async (accountInfo, context) => {
+                    await updateBalance(marketData.mktMint, walletPK, mktScale, mktDecimals, 0)
                     await updateBalance(marketData.prcMint, walletPK, prcScale, prcDecimals, 1)
                 })
                 var logAccounts = results[2]
@@ -249,6 +251,8 @@ const AquaProvider = ({ children }) => {
             'userPrcToken': new PublicKey(userToken2.pubkey),
             'mktVault': new PublicKey(tokenVault1.pubkey),
             'prcVault': new PublicKey(tokenVault2.pubkey), 
+            'mktMint': new PublicKey(marketData.mktMint),
+            'prcMint': new PublicKey(marketData.prcMint),
             'orders': marketData.orders,
             'tradeLog': marketData.tradeLog,
             'settleA': marketStateData.settleA,
@@ -312,7 +316,7 @@ const AquaProvider = ({ children }) => {
             setMarketListLoaded(true)
             fetchMarketList().then(() => {})
         }
-    })
+    }, [marketListLoaded])
 
     useEffect(() => {
         if (isConnected && currentMarket) {
@@ -322,35 +326,35 @@ const AquaProvider = ({ children }) => {
 
     useEffect(() => {
         bus.emit('setMarketList', marketList)
-    }, [marketList])
+    }, [marketList, bus])
 
     useEffect(() => {
         bus.emit('setMarketMap', marketMap)
-    }, [marketMap])
+    }, [marketMap, bus])
 
     useEffect(() => {
         bus.emit('setMarketAccounts', marketAccounts)
-    }, [marketAccounts])
+    }, [marketAccounts, bus])
 
     useEffect(() => {
         bus.emit('setMarketSummary', marketSummary)
-    }, [marketSummary])
+    }, [marketSummary, bus])
 
     useEffect(() => {
         bus.emit('setOrderbookData', orderbookData)
-    }, [orderbookData])
+    }, [orderbookData, bus])
 
     useEffect(() => {
         bus.emit('setSettleList', settleList)
-    }, [settleList])
+    }, [settleList, bus])
 
     useEffect(() => {
         bus.emit('setTradeList', tradeList)
-    }, [tradeList])
+    }, [tradeList, bus])
 
     useEffect(() => {
         bus.emit('setTokenList', tokenList)
-    }, [tokenList])
+    }, [tokenList, bus])
 
     useEffect(() => {
         setIsConnected(publicKey !== null)
@@ -364,7 +368,7 @@ const AquaProvider = ({ children }) => {
                 start()
             }
         }
-    }, [isConnected])
+    }, [isConnected, bus, publicKey])
 
     return <>{children}</>
 }
